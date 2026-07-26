@@ -36,3 +36,7 @@ jobs:
       - uses: hacs/action@main
         with:
           category: integration
+          # These are HACS default-store publication checks, not requirements
+          # for a custom (URL-added) repository: brands needs a PR to
+          # home-assistant/brands; description/topics are GitHub repo metadata.
+          ignore: brands description topics
