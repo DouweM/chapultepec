@@ -1,0 +1,36 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Bosque de Chapultepec",
+        "description": "Connect to the official Bosque de Chapultepec app data. The default API key is the public one shipped with the app.",
+        "data": {
+          "api_key": "API key",
+          "language": "Language"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "This venue is already configured"
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "park_open": { "name": "Park open" }
+    },
+    "sensor": {
+      "opens_at": { "name": "Opens at" },
+      "closes_at": { "name": "Closes at" },
+      "open_locations": { "name": "Open locations" },
+      "events_today": { "name": "Events today" },
+      "next_event": { "name": "Next event" }
+    },
+    "calendar": {
+      "activities": { "name": "Activities" }
+    }
+  }
+}

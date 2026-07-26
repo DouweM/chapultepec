@@ -1,0 +1,13 @@
+{
+  "domain": "chapultepec",
+  "name": "Bosque de Chapultepec",
+  "codeowners": ["@DouweM"],
+  "config_flow": true,
+  "dependencies": ["http"],
+  "documentation": "https://github.com/DouweM/chapultepec",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/DouweM/chapultepec/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

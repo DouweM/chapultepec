@@ -1,0 +1,58 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pychapultepec"
+version = "0.1.0"
+description = "Async SDK for the Bosque de Chapultepec (Attractions.io) app: map, POIs, events, live status."
+readme = "README.md"
+requires-python = ">=3.13"
+license = { text = "MIT" }
+authors = [{ name = "Douwe Maan", email = "me@douwe.me" }]
+dependencies = ["aiohttp>=3.9", "python-dateutil>=2.9"]
+
+[project.urls]
+Homepage = "https://github.com/DouweM/chapultepec"
+Issues = "https://github.com/DouweM/chapultepec/issues"
+
+[dependency-groups]
+dev = ["ruff>=0.6", "pyright>=1.1.380", "pytest>=8", "pytest-asyncio>=0.23", "coverage>=7"]
+
+# The SDK is vendored inside the integration so HACS can install it without a
+# separate PyPI release; hatchling still exposes it as the importable
+# `pychapultepec` package.
+[tool.hatch.build.targets.wheel]
+packages = ["custom_components/chapultepec/pychapultepec"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+
+[tool.ruff.lint]
+extend-select = ["I", "UP", "B", "C4", "SIM", "RUF", "PTH", "DTZ", "D"]
+ignore = ["D203", "D213"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D", "S101"]
+"scripts/*" = ["D"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.pyright]
+include = ["custom_components/chapultepec/pychapultepec", "tests"]
+pythonVersion = "3.13"
+typeCheckingMode = "basic"
+venvPath = "."
+venv = ".venv"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+# Default run = the harness-free SDK tests. The HA integration test lives under
+# tests/integration and is run separately (it loads the Home Assistant pytest
+# plugin, whose autouse fixtures are incompatible with plain sync unit tests).
+testpaths = ["tests/sdk"]
+# Put the repo root on sys.path so `custom_components.chapultepec` imports under
+# `uv run pytest` (which, unlike `python -m pytest`, does not add the cwd).
+pythonpath = ["."]

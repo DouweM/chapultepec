@@ -1,0 +1,36 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Bosque de Chapultepec",
+        "description": "Conéctate a los datos de la app oficial del Bosque de Chapultepec. La clave API predeterminada es la pública incluida en la app.",
+        "data": {
+          "api_key": "Clave API",
+          "language": "Idioma"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Error de conexión",
+      "unknown": "Error inesperado"
+    },
+    "abort": {
+      "already_configured": "Este recinto ya está configurado"
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "park_open": { "name": "Parque abierto" }
+    },
+    "sensor": {
+      "opens_at": { "name": "Abre a las" },
+      "closes_at": { "name": "Cierra a las" },
+      "open_locations": { "name": "Lugares abiertos" },
+      "events_today": { "name": "Eventos hoy" },
+      "next_event": { "name": "Próximo evento" }
+    },
+    "calendar": {
+      "activities": { "name": "Actividades" }
+    }
+  }
+}
