@@ -1,5 +1,8 @@
 # Bosque de Chapultepec for Home Assistant
 
+[![CI](https://github.com/DouweM/chapultepec/actions/workflows/ci.yml/badge.svg)](https://github.com/DouweM/chapultepec/actions/workflows/ci.yml)
+[![hacs](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz)
+
 A Home Assistant integration (and companion Python SDK, `pychapultepec`) for the
 official **Bosque de Chapultepec** app — Mexico City's great park. It brings the
 app's beautiful illustrated map, live open/closed status, and daily activity
@@ -27,7 +30,8 @@ The app is a white-label build on the [Attractions.io](https://attractions.io)
 
 ### HACS (recommended)
 
-1. Add this repository as a custom repository (category: *Integration*).
+1. In HACS → *Custom repositories*, add `https://github.com/DouweM/chapultepec`
+   (category: *Integration*).
 2. Install **Bosque de Chapultepec**, restart Home Assistant.
 3. *Settings → Devices & Services → Add Integration → Bosque de Chapultepec*.
    The default (public) API key is pre-filled; just pick a language.
@@ -78,7 +82,7 @@ python scripts/update_data.py        # re-extracts tiles, records, map manifest
 `pychapultepec` is a standalone async SDK; the integration vendors it.
 
 ```python
-import aiohttp
+import aiohttp, json
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from pychapultepec import ChapultepecClient, ContentStore, DEFAULT_TIMEZONE
@@ -90,15 +94,17 @@ async with aiohttp.ClientSession() as session:
 
     # Public, no auth: real-time open/closed + hours.
     live = await client.fetch_live_status()
+    print("open now:", sum(bool(i.is_open) for i in live.items.values()))
 
-    # Content (POIs, categories, events) — from a downloaded bundle.
-    # (or load the bundled data/records.json directly)
+    # Content (POIs, categories, events). Use the bundled snapshot, or fetch a
+    # fresh bundle with `await client.download_bundle(path)` and unzip records.json.
+    records = json.load(open("custom_components/chapultepec/data/records.json"))
     store = ContentStore(records, tz, language="es-419")
 
-    # Events for today, filterable by category and/or item.
+    # Events today, filterable by category (6070 = Actividades) and/or item id.
     now = datetime.now(tz)
     for ev in store.events(now, now + timedelta(days=1), category=6070):
-        print(ev.start, ev.poi.name, [c.name for c in ev.categories])
+        print(ev.start.strftime("%H:%M"), ev.poi.name, [c.name for c in ev.categories])
 ```
 
 ## How it works
@@ -113,6 +119,21 @@ async with aiohttp.ClientSession() as session:
 
 Note: `api.attractions.io/v3/events` is the app's *analytics* telemetry, not park
 events — it is deliberately not used.
+
+## Development
+
+```bash
+uv sync --group dev
+uv run pytest tests/sdk                              # SDK unit tests (no HA needed)
+uv pip install homeassistant pytest-homeassistant-custom-component
+uv run pytest tests/integration                      # HA setup test (run separately)
+uv run ruff check . && uv run ruff format --check .  # lint
+```
+
+The HA integration test lives under `tests/integration` and is run separately
+from the SDK tests: the Home Assistant pytest plugin installs global autouse
+fixtures that assume a running event loop, which is incompatible with plain sync
+unit tests in the same session.
 
 ## Legal
 
