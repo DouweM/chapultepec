@@ -10,7 +10,7 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 
 from .coordinator import ChapultepecConfigEntry, ChapultepecCoordinator
-from .http import async_register_tiles, register_map_view
+from .web import async_register_tiles, register_map_view
 
 PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.CALENDAR, Platform.SENSOR]
 
