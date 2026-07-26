@@ -43,22 +43,21 @@ Copy `custom_components/chapultepec` into your HA `config/custom_components/`.
 ## Map dashboard card
 
 Requires [ha-map-card](https://github.com/nathan-gs/ha-map-card). The tiles are
-standard XYZ but 512 px, so `tileSize: 512` + `zoomOffset: -1` render the
-illustration at its intended size while staying geographically aligned:
+standard Web-Mercator XYZ (512 px hi-res), so the normal tile scheme applies.
+Note that `ha-map-card` takes `x` as **latitude** and `y` as **longitude** (it
+passes `[x, y]` straight to Leaflet's `setView([lat, lng])`):
 
 ```yaml
 type: custom:map-card
-x: -99.187913   # park focal point
-y: 19.420354
+x: 19.420354    # latitude  (park focal point)
+y: -99.187913   # longitude
 zoom: 15
 tile_layer_url: /chapultepec/tiles/{z}.{x}.{y}.webp
 tile_layer_options:
-  tileSize: 512
-  zoomOffset: -1
-  minZoom: 13
+  detectRetina: false
+  minNativeZoom: 12
+  maxNativeZoom: 18
   maxZoom: 21
-  minNativeZoom: 13
-  maxNativeZoom: 19
 entities:
   - person.you        # markers show if you're in the park
 ```
