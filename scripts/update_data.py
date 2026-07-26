@@ -59,7 +59,8 @@ def _extract(zip_path: Path) -> None:
         tiles_dir.mkdir(parents=True)
         for name in tile_names:
             (tiles_dir / Path(name).name).write_bytes(zf.read(name))
-        print(f"  tiles:        {len(tile_names)} -> {tiles_dir.relative_to(REPO)}")
+        kept, deduped = _dedupe_green(tiles_dir)
+        print(f"  tiles:        {kept} + green.webp ({deduped} green dupes collapsed) -> {tiles_dir.relative_to(REPO)}")
 
         # Map manifest + routes.
         data_dir.mkdir(parents=True, exist_ok=True)
@@ -68,6 +69,32 @@ def _extract(zip_path: Path) -> None:
 
         # Records dataset.
         _copy(zf, "records.json", data_dir / "records.json")
+
+
+def _dedupe_green(tiles_dir: Path) -> tuple[int, int]:
+    """Collapse the identical solid-green filler tiles into one ``green.webp``.
+
+    The illustrated map pads the area around the park with a single repeated
+    green tile. We keep one copy as ``green.webp`` (used as the map's
+    ``errorTileUrl`` so the whole world renders that green) and drop the
+    redundant copies — any missing tile then falls back to it. Returns
+    ``(kept_tiles, deduped_count)``.
+    """
+    import collections
+    import hashlib
+
+    by_hash: dict[str, list[Path]] = collections.defaultdict(list)
+    for tile in tiles_dir.glob("*.webp"):
+        digest = hashlib.sha1(tile.read_bytes()).hexdigest()
+        by_hash[digest].append(tile)
+
+    # The most-repeated identical tile is the green filler.
+    green_files = max(by_hash.values(), key=len)
+    (tiles_dir / "green.webp").write_bytes(green_files[0].read_bytes())
+    for tile in green_files:
+        tile.unlink()
+    kept = sum(1 for _ in tiles_dir.glob("*.webp")) - 1  # exclude green.webp
+    return kept, len(green_files)
 
 
 def _copy(zf: zipfile.ZipFile, name: str, dest: Path, *, optional: bool = False) -> None:
